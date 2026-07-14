@@ -18,6 +18,18 @@ function TicketsContent({ user }) {
       .finally(() => setLoading(false));
   }, [user.email]);
 
+  async function handleReply(id, text) {
+    const res = await fetch("/api/ticket", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, reply: { authorName: user.name, authorRole: user.role, text } }),
+    });
+    const data = await res.json();
+    if (data.ticket) {
+      setTickets((prev) => prev.map((t) => (t.id === id ? data.ticket : t)));
+    }
+  }
+
   const filtered =
     filter === "All" ? tickets : tickets.filter((t) => t.status === filter);
 
@@ -38,8 +50,8 @@ function TicketsContent({ user }) {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight text-neutral-900">Ticket History</h1>
-      <p className="mt-1 text-sm text-neutral-500">
+      <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">Ticket History</h1>
+      <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
         Support tickets you've raised through the AI assistant.
       </p>
 
@@ -59,7 +71,7 @@ function TicketsContent({ user }) {
           ) : (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {filtered.map((t) => (
-                <TicketCard key={t.id} ticket={t} />
+                <TicketCard key={t.id} ticket={t} onReply={handleReply} />
               ))}
             </div>
           )}
@@ -70,5 +82,9 @@ function TicketsContent({ user }) {
 }
 
 export default function TicketsPage() {
-  return <ProtectedRoute>{(user) => <TicketsContent user={user} />}</ProtectedRoute>;
+  return (
+    <ProtectedRoute allowedRoles={["Employee", "HR", "IT"]}>
+      {(user) => <TicketsContent user={user} />}
+    </ProtectedRoute>
+  );
 }

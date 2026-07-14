@@ -64,3 +64,25 @@ export async function updateTicketStatus(id, status) {
     );
   return serialize(result);
 }
+
+// Appends a reply to the ticket's conversation thread, optionally moving its
+// status in the same update (e.g. resolving with a note in one action).
+export async function addTicketReply(id, { authorName, authorRole, text }, status) {
+  const db = await getDb();
+  const updatedAt = new Date().toISOString();
+  const reply = {
+    id: `R-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    authorName,
+    authorRole,
+    text,
+    createdAt: updatedAt,
+  };
+
+  const update = { $push: { replies: reply }, $set: { updatedAt } };
+  if (status) update.$set.status = status;
+
+  const result = await db
+    .collection(COLLECTION)
+    .findOneAndUpdate({ id }, update, { returnDocument: "after" });
+  return serialize(result);
+}

@@ -139,20 +139,20 @@ function ChatContent({ user }) {
   }
 
   return (
-    <div className="flex h-[calc(100vh-9.5rem)] flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm shadow-neutral-200/40">
-      <div className="flex items-center gap-2.5 border-b border-neutral-100 bg-white px-5 py-3.5">
+    <div className="flex h-[calc(100vh-9.5rem)] flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm shadow-neutral-200/40 dark:border-neutral-800 dark:bg-neutral-900 dark:shadow-none">
+      <div className="flex items-center gap-2.5 border-b border-neutral-100 bg-white px-5 py-3.5 dark:border-neutral-800 dark:bg-neutral-900">
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-indigo-600 to-violet-600 text-white">
           <Bot size={16} strokeWidth={2.25} />
         </span>
         <div>
-          <h1 className="text-sm font-semibold text-neutral-900">AI Support Assistant</h1>
+          <h1 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">AI Support Assistant</h1>
           <p className="flex items-center gap-1 text-xs text-neutral-400">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Online · HR & IT policies
           </p>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto bg-neutral-50/50 px-5 py-5">
+      <div className="flex-1 overflow-y-auto bg-neutral-50/50 px-5 py-5 dark:bg-neutral-950/40">
         <ChatBox
           messages={messages}
           thinking={thinking}
@@ -161,7 +161,7 @@ function ChatContent({ user }) {
         />
       </div>
 
-      <div className="border-t border-neutral-100 bg-white p-4">
+      <div className="border-t border-neutral-100 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
         <ChatInput onSend={handleSend} disabled={thinking} />
       </div>
     </div>
@@ -169,5 +169,9 @@ function ChatContent({ user }) {
 }
 
 export default function ChatPage() {
-  return <ProtectedRoute>{(user) => <ChatContent user={user} />}</ProtectedRoute>;
+  return (
+    <ProtectedRoute allowedRoles={["Employee", "HR", "IT"]}>
+      {(user) => <ChatContent user={user} />}
+    </ProtectedRoute>
+  );
 }

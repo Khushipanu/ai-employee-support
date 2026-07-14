@@ -1,8 +1,15 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #fafafa;
   --foreground: #0a0a0a;
+}
+
+.dark {
+  --background: #0a0a0b;
+  --foreground: #f4f4f5;
 }
 
 @theme inline {
@@ -12,9 +19,49 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* LeetCode-inspired accent palette, overrides Tailwind's built-in
+   indigo/violet scales so every existing indigo/violet utility class
+   across the app repaints without touching each file individually.
+   Primary is LeetCode's signature orange (#FFA116); violet becomes the
+   warm yellow it pairs with in the logo/hero gradients. */
+@theme {
+  --color-indigo-50: #fff8ec;
+  --color-indigo-100: #ffeacc;
+  --color-indigo-200: #ffd699;
+  --color-indigo-300: #ffc061;
+  --color-indigo-400: #ffad3d;
+  --color-indigo-500: #ffa116;
+  --color-indigo-600: #f28c00;
+  --color-indigo-700: #c96f00;
+  --color-indigo-800: #9c5700;
+  --color-indigo-900: #7a4400;
+  --color-indigo-950: #452600;
+
+  --color-violet-50: #fffbea;
+  --color-violet-100: #fff3c4;
+  --color-violet-200: #ffe8a3;
+  --color-violet-300: #ffdb70;
+  --color-violet-400: #ffcb3d;
+  --color-violet-500: #ffbb1c;
+  --color-violet-600: #f5a70a;
+  --color-violet-700: #cc8900;
+  --color-violet-800: #9c6900;
+  --color-violet-900: #7a5200;
+
+  /* LeetCode difficulty colors, closer than stock emerald/rose */
+  --color-emerald-500: #00b8a3;
+  --color-emerald-600: #00a58e;
+  --color-rose-500: #ff375f;
+  --color-rose-600: #e62d51;
+}
+
 * {
   scrollbar-width: thin;
   scrollbar-color: #d4d4d8 transparent;
+}
+
+.dark * {
+  scrollbar-color: #3f3f46 transparent;
 }
 
 ::-webkit-scrollbar {
@@ -25,6 +72,9 @@
   background: #d4d4d8;
   border-radius: 999px;
 }
+.dark ::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+}
 ::-webkit-scrollbar-track {
   background: transparent;
 }
@@ -33,11 +83,12 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 ::selection {
-  background: #4f46e5;
-  color: white;
+  background: #ffa116;
+  color: #1a1a1a;
 }
 
 @keyframes fade-in-up {

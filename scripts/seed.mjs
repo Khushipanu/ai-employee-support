@@ -24,8 +24,8 @@ const users = [
     name: "Khushi Panu",
     email: "khushi@company.com",
     password: "demo-pw-redacted",
-    role: "Employee",
-    department: "Engineering",
+    role: "Admin",
+    department: "Administration",
   },
   {
     id: "u2",
@@ -50,6 +50,14 @@ const users = [
     password: "demo-pw-redacted",
     role: "IT",
     department: "IT Support",
+  },
+  {
+    id: "u5",
+    name: "Employee",
+    email: "employee@company.com",
+    password: "REDACTED",
+    role: "Employee",
+    department: "Operations",
   },
 ];
 

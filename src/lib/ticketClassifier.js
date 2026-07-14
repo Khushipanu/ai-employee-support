@@ -17,6 +17,8 @@ const HR_KEYWORDS = [
   "probation", "dress code", "posh", "confidentiality", "nda",
   "gratuity", "provident fund", "form 16", "settlement", "relieving",
   "experience letter", "exit interview", "holiday",
+  "pet", "pets", "dog", "cat", "animal", "office conduct", "office policy",
+  "dress code", "seating", "workplace",
 ];
 
 const HIGH_PRIORITY_KEYWORDS = [
@@ -31,7 +33,10 @@ export function classifyCategory(text) {
   const itScore = IT_KEYWORDS.filter((k) => t.includes(k)).length;
   const hrScore = HR_KEYWORDS.filter((k) => t.includes(k)).length;
 
-  if (itScore === 0 && hrScore === 0) return "IT";
+  // General workplace questions with no clear IT signal are almost always
+  // HR's domain (conduct, policy, office life) — IT tickets are usually
+  // unambiguously technical, so IT is not a safe default.
+  if (itScore === 0 && hrScore === 0) return "HR";
   return itScore >= hrScore ? "IT" : "HR";
 }
 

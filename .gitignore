@@ -36,6 +36,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# user-uploaded files (PDFs) — not committed
+/public/uploads/**
+!/public/uploads/.gitkeep
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

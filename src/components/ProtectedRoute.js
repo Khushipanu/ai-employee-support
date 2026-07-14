@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSession } from "@/lib/session";
+import { homeForRole } from "@/lib/roles";
 import Loader from "@/components/Loader";
 
 export default function ProtectedRoute({ children, allowedRoles }) {
@@ -16,7 +17,7 @@ export default function ProtectedRoute({ children, allowedRoles }) {
       return;
     }
     if (allowedRoles && !allowedRoles.includes(session.role)) {
-      router.replace("/dashboard");
+      router.replace(homeForRole(session.role));
       return;
     }
     setUser(session);

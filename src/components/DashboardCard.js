@@ -1,22 +1,22 @@
 const ACCENTS = {
-  indigo: "bg-indigo-50 text-indigo-600",
-  amber: "bg-amber-50 text-amber-600",
-  emerald: "bg-emerald-50 text-emerald-600",
-  rose: "bg-rose-50 text-rose-600",
+  indigo: "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400",
+  amber: "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400",
+  emerald: "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400",
+  rose: "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400",
 };
 
 export default function DashboardCard({ title, value, subtitle, icon: Icon, accent = "indigo" }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-5 transition hover:border-neutral-300 hover:shadow-sm">
+    <div className="rounded-2xl border border-neutral-200 bg-white p-5 transition hover:border-neutral-300 hover:shadow-sm dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-700 dark:hover:shadow-none">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-neutral-500">{title}</p>
+        <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{title}</p>
         {Icon && (
           <span className={`flex h-8 w-8 items-center justify-center rounded-lg ${ACCENTS[accent] || ACCENTS.indigo}`}>
             <Icon size={16} strokeWidth={2.25} />
           </span>
         )}
       </div>
-      <p className="mt-3 text-3xl font-semibold tracking-tight text-neutral-900">{value}</p>
+      <p className="mt-3 text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50">{value}</p>
       {subtitle && <p className="mt-1 text-xs text-neutral-400">{subtitle}</p>}
     </div>
   );

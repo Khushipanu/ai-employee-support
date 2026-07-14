@@ -1,6 +1,6 @@
 export default function Sidebar({ title, filters, activeFilter, onFilterChange }) {
   return (
-    <aside className="w-full shrink-0 rounded-2xl border border-neutral-200 bg-white p-3 sm:w-44">
+    <aside className="w-full shrink-0 rounded-2xl border border-neutral-200 bg-white p-3 sm:w-44 dark:border-neutral-800 dark:bg-neutral-900">
       <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
         {title}
       </p>
@@ -11,8 +11,8 @@ export default function Sidebar({ title, filters, activeFilter, onFilterChange }
             onClick={() => onFilterChange(f.value)}
             className={`flex items-center justify-between rounded-lg px-3 py-2 text-left text-sm font-medium transition ${
               activeFilter === f.value
-                ? "bg-indigo-50 text-indigo-700"
-                : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
+                ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300"
+                : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
             }`}
           >
             {f.label}

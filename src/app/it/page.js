@@ -8,7 +8,7 @@ import TicketCard from "@/components/TicketCard";
 import Sidebar from "@/components/Sidebar";
 import Loader from "@/components/Loader";
 
-function ITContent() {
+function ITContent({ user }) {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("All");
@@ -25,13 +25,28 @@ function ITContent() {
     loadTickets();
   }, []);
 
-  async function handleStatusChange(id, status) {
-    setTickets((prev) => prev.map((t) => (t.id === id ? { ...t, status } : t)));
-    await fetch("/api/ticket", {
+  async function patchTicket(body) {
+    const res = await fetch("/api/ticket", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, status }),
+      body: JSON.stringify(body),
     });
+    const data = await res.json();
+    if (data.ticket) {
+      setTickets((prev) => prev.map((t) => (t.id === body.id ? data.ticket : t)));
+    }
+  }
+
+  function handleStatusChange(id, status, replyText) {
+    return patchTicket({
+      id,
+      status,
+      reply: replyText ? { authorName: user.name, authorRole: user.role, text: replyText } : undefined,
+    });
+  }
+
+  function handleReply(id, text) {
+    return patchTicket({ id, reply: { authorName: user.name, authorRole: user.role, text } });
   }
 
   const filtered =
@@ -54,8 +69,8 @@ function ITContent() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight text-neutral-900">IT Dashboard</h1>
-      <p className="mt-1 text-sm text-neutral-500">
+      <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">IT Dashboard</h1>
+      <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
         All IT tickets raised by employees across the company.
       </p>
 
@@ -101,6 +116,7 @@ function ITContent() {
                   ticket={t}
                   showEmployee
                   onStatusChange={handleStatusChange}
+                  onReply={handleReply}
                 />
               ))}
             </div>
@@ -112,5 +128,7 @@ function ITContent() {
 }
 
 export default function ITPage() {
-  return <ProtectedRoute allowedRoles={["IT"]}>{() => <ITContent />}</ProtectedRoute>;
+  return (
+    <ProtectedRoute allowedRoles={["IT"]}>{(user) => <ITContent user={user} />}</ProtectedRoute>
+  );
 }

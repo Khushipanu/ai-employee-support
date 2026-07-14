@@ -5,7 +5,7 @@ import { Bot, User, CheckCircle2, Zap } from "lucide-react";
 function Avatar({ role }) {
   if (role === "user") {
     return (
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-neutral-900 text-white">
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-neutral-900 text-white dark:bg-indigo-600">
         <User size={14} strokeWidth={2.25} />
       </span>
     );
@@ -25,8 +25,8 @@ function Row({ role, children }) {
       <div
         className={`max-w-[78%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
           isUser
-            ? "rounded-br-sm bg-neutral-900 text-white"
-            : "rounded-bl-sm border border-neutral-200 bg-white text-neutral-800"
+            ? "rounded-br-sm bg-neutral-900 text-white dark:bg-indigo-600"
+            : "rounded-bl-sm border border-neutral-200 bg-white text-neutral-800 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100"
         }`}
       >
         {children}
@@ -40,7 +40,7 @@ export default function ChatBox({ messages, thinking, onRaiseTicket, onDismissTi
     <div className="flex flex-col gap-4 overflow-y-auto p-1">
       {messages.length === 0 && (
         <div className="flex flex-col items-center gap-2 py-14 text-center">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
             <Bot size={18} />
           </span>
           <p className="max-w-xs text-sm text-neutral-400">
@@ -65,7 +65,7 @@ export default function ChatBox({ messages, thinking, onRaiseTicket, onDismissTi
                 </button>
                 <button
                   onClick={() => onDismissTicket(m.id)}
-                  className="rounded-full border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-600 transition hover:bg-neutral-50"
+                  className="rounded-full border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-600 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
                 >
                   No, thanks
                 </button>
@@ -73,7 +73,7 @@ export default function ChatBox({ messages, thinking, onRaiseTicket, onDismissTi
             )}
 
             {m.type === "ticket-created" && (
-              <div className="mt-2.5 flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+              <div className="mt-2.5 flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
                 <CheckCircle2 size={14} className="shrink-0" />
                 <span>
                   Ticket <span className="font-mono">{m.ticket.id}</span> · {m.ticket.category} ·
@@ -83,7 +83,7 @@ export default function ChatBox({ messages, thinking, onRaiseTicket, onDismissTi
             )}
 
             {m.type === "auto-ticket" && (
-              <div className="mt-2.5 flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
+              <div className="mt-2.5 flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
                 <Zap size={14} className="shrink-0" />
                 <span>Auto-detected as urgent — raising an IT ticket right away</span>
               </div>
@@ -95,9 +95,9 @@ export default function ChatBox({ messages, thinking, onRaiseTicket, onDismissTi
       {thinking && (
         <Row role="assistant">
           <span className="flex items-center gap-1 py-0.5">
-            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-300 [animation-delay:-0.3s]" />
-            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-300 [animation-delay:-0.15s]" />
-            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-300" />
+            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-300 [animation-delay:-0.3s] dark:bg-neutral-600" />
+            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-300 [animation-delay:-0.15s] dark:bg-neutral-600" />
+            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-300 dark:bg-neutral-600" />
           </span>
         </Row>
       )}

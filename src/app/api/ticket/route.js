@@ -4,6 +4,7 @@ import {
   getTicketsByCategory,
   createTicket,
   updateTicketStatus,
+  addTicketReply,
 } from "@/data/tickets";
 import { classifyTicket } from "@/lib/ticketClassifier";
 
@@ -50,16 +51,19 @@ export async function POST(request) {
 
 export async function PATCH(request) {
   const body = await request.json();
-  const { id, status } = body || {};
+  const { id, status, reply } = body || {};
 
-  if (!id || !status) {
+  if (!id || (!status && !reply)) {
     return Response.json(
-      { error: "id and status are required" },
+      { error: "id and (status or reply) are required" },
       { status: 400 }
     );
   }
 
-  const ticket = await updateTicketStatus(id, status);
+  const ticket = reply
+    ? await addTicketReply(id, reply, status)
+    : await updateTicketStatus(id, status);
+
   if (!ticket) {
     return Response.json({ error: "Ticket not found" }, { status: 404 });
   }
