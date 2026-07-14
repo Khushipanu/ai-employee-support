@@ -32,7 +32,8 @@ function isGreeting(question) {
 
 const URGENT_ACCESS_PATTERNS = [
   /can'?t\s*log\s*?in/i, /cannot\s*log\s*?in/i, /unable to log\s*?in/i,
-  /not able to log\s*?in/i, /login (is )?not working/i, /locked out/i,
+  /not able to log\s*?in/i, /login (is )?not working/i,
+  /logging (in )?(is )?not working/i, /trouble logging in/i, /locked out/i,
   /account (is )?locked/i, /can'?t access/i, /cannot access/i,
   /unable to access/i, /password (is )?not working/i, /vpn (is )?not working/i,
   /system (is )?down/i,

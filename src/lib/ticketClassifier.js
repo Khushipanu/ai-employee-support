@@ -2,7 +2,8 @@
 // assigns a priority, so support tickets are routed automatically.
 const IT_KEYWORDS = [
   "password", "laptop", "wifi", "vpn", "network", "software", "install",
-  "printer", "email", "outlook", "login", "access", "account locked",
+  "printer", "email", "outlook", "login", "logging", "log in", "log-in",
+  "sign in", "signing in", "access", "account locked",
   "hardware", "monitor", "system", "server", "internet", "license",
   "asset acknowledgment", "lost device", "stolen device", "it ticket",
 ];
@@ -25,7 +26,8 @@ const HIGH_PRIORITY_KEYWORDS = [
   "urgent", "asap", "immediately", "not working", "locked out", "cannot access",
   "harassment", "security", "breach", "down", "blocked", "critical",
   "unable to login", "unable to log in", "can't login", "can't log in",
-  "cannot login", "cannot log in", "account locked", "since morning",
+  "cannot login", "cannot log in", "trouble logging in", "can't log into",
+  "account locked", "since morning",
 ];
 
 export function classifyCategory(text) {

@@ -109,7 +109,7 @@ function ITContent({ user }) {
           ) : filtered.length === 0 ? (
             <p className="text-sm text-neutral-400">No IT tickets found.</p>
           ) : (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="max-w-2xl space-y-3">
               {filtered.map((t) => (
                 <TicketCard
                   key={t.id}

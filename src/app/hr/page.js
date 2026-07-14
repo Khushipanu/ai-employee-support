@@ -18,6 +18,7 @@ import JobCard from "@/components/JobCard";
 import ApplicationCard from "@/components/ApplicationCard";
 import Sidebar from "@/components/Sidebar";
 import Loader from "@/components/Loader";
+import { DEPARTMENTS } from "@/lib/departments";
 
 const TABS = [
   { value: "tickets", label: "Tickets", icon: Ticket },
@@ -118,7 +119,7 @@ function TicketsTab({ user }) {
           ) : filtered.length === 0 ? (
             <p className="text-sm text-neutral-400">No HR tickets found.</p>
           ) : (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="max-w-2xl space-y-3">
               {filtered.map((t) => (
                 <TicketCard
                   key={t.id}
@@ -407,13 +408,21 @@ function JobsTab({ user }) {
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
                 className={inputClass}
               />
-              <input
+              <select
                 required
-                placeholder="Department"
                 value={form.department}
                 onChange={(e) => setForm({ ...form, department: e.target.value })}
                 className={inputClass}
-              />
+              >
+                <option value="" disabled>
+                  Select department
+                </option>
+                {DEPARTMENTS.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
               <input
                 required
                 placeholder="Eligibility criteria"

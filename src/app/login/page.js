@@ -37,12 +37,6 @@ export default function LoginPage() {
     }
   }
 
-  function fillDemo(demoEmail, demoPassword) {
-    setEmail(demoEmail);
-    setPassword(demoPassword);
-    setError("");
-  }
-
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-neutral-50 px-4 dark:bg-neutral-950">
       <div className="pointer-events-none absolute left-1/2 top-0 h-105 w-180 -translate-x-1/2 -translate-y-1/3 rounded-full bg-linear-to-br from-indigo-200 via-violet-100 to-transparent opacity-60 blur-3xl dark:from-indigo-500/20 dark:via-violet-500/10 dark:opacity-40" />
@@ -108,30 +102,6 @@ export default function LoginPage() {
               )}
             </button>
           </form>
-
-          <div className="mt-5 border-t border-neutral-100 pt-4 dark:border-neutral-800">
-            <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-neutral-400">
-              Demo accounts — click to autofill
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {[
-                ["Admin", "khushi@company.com", "demo-pw-redacted"],
-                ["Employee", "employee@company.com", "123"],
-                ["HR", "hr@company.com", "demo-pw-redacted"],
-                ["IT", "it@company.com", "demo-pw-redacted"],
-              ].map(([label, mail, pass]) => (
-                <button
-                  key={mail}
-                  type="button"
-                  onClick={() => fillDemo(mail, pass)}
-                  title={`${mail} · ${pass}`}
-                  className="rounded-full border border-neutral-200 px-3 py-1 text-xs font-medium text-neutral-600 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 dark:border-neutral-700 dark:text-neutral-300 dark:hover:border-indigo-800 dark:hover:bg-indigo-950/50 dark:hover:text-indigo-300"
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
     </div>

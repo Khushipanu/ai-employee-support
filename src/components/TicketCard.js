@@ -105,7 +105,7 @@ export default function TicketCard({ ticket, onStatusChange, onReply, showEmploy
       </div>
 
       {thread.length > 0 && (
-        <div className="mt-3 space-y-2 border-t border-neutral-100 pt-3 dark:border-neutral-800">
+        <div className="mt-3 max-h-64 space-y-2 overflow-y-auto border-t border-neutral-100 pt-3 pr-1 dark:border-neutral-800">
           {thread.map((r, i) => (
             <div key={r.id || i} className="rounded-lg bg-neutral-50 px-3 py-2 dark:bg-neutral-800/60">
               <p className="flex items-center justify-between gap-2 text-[11px] font-medium text-neutral-500 dark:text-neutral-400">

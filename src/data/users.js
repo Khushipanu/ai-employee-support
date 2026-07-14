@@ -33,7 +33,7 @@ export async function findUserByEmail(email) {
   return serialize(doc);
 }
 
-export async function createUser({ name, email, password, role, department }) {
+export async function createUser({ name, email, password, role, department, joiningDate }) {
   const db = await getDb();
   const normalizedEmail = String(email).toLowerCase();
 
@@ -49,8 +49,32 @@ export async function createUser({ name, email, password, role, department }) {
     password,
     role,
     department,
+    joiningDate: joiningDate || null,
   };
 
   await db.collection(COLLECTION).insertOne(newUser);
   return serialize(newUser);
+}
+
+export async function updateUser(email, { name, department, password }) {
+  const db = await getDb();
+  const normalizedEmail = String(email).toLowerCase();
+
+  const update = {};
+  if (name) update.name = name;
+  if (department) update.department = department;
+  if (password) update.password = password;
+
+  if (Object.keys(update).length === 0) {
+    throw new Error("Nothing to update.");
+  }
+
+  const result = await db
+    .collection(COLLECTION)
+    .findOneAndUpdate({ email: normalizedEmail }, { $set: update }, { returnDocument: "after" });
+
+  if (!result) {
+    throw new Error("User not found.");
+  }
+  return serialize(result);
 }

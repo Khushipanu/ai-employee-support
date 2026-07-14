@@ -15,6 +15,11 @@ function nextId() {
 function ChatContent({ user }) {
   const [messages, setMessages] = useState([]);
   const [thinking, setThinking] = useState(false);
+  // Tracks the substantive question behind an unresolved exchange, so a
+  // short follow-up ("no, not resolved") gets classified/ticketed against
+  // the real issue instead of being evaluated as a brand-new, context-free
+  // message (the chat API itself has no memory across calls).
+  const [activeIssue, setActiveIssue] = useState(null);
 
   async function createTicket(question, introText) {
     try {
@@ -55,20 +60,26 @@ function ChatContent({ user }) {
     setMessages((prev) => [...prev, { id: nextId(), role: "user", text: question }]);
     setThinking(true);
 
+    // If there's an unresolved issue from the previous turn, fold this
+    // message into it rather than evaluating it as a standalone question.
+    const effectiveQuestion = activeIssue ? `${activeIssue} — ${question}` : question;
+
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question: effectiveQuestion }),
       });
       const data = await res.json();
 
       if (data.canAnswer) {
+        setActiveIssue(null);
         setMessages((prev) => [
           ...prev,
           { id: nextId(), role: "assistant", text: data.answer },
         ]);
       } else if (data.autoTicket) {
+        setActiveIssue(null);
         setMessages((prev) => [
           ...prev,
           {
@@ -79,10 +90,11 @@ function ChatContent({ user }) {
           },
         ]);
         await createTicket(
-          question,
+          effectiveQuestion,
           "Done — an IT support ticket has been raised automatically. They'll reach out shortly."
         );
       } else {
+        setActiveIssue(effectiveQuestion);
         setMessages((prev) => [
           ...prev,
           {
@@ -91,7 +103,7 @@ function ChatContent({ user }) {
             type: "ask-ticket",
             text:
               "I couldn't find an answer to that in our company policies. Would you like me to raise a support ticket?",
-            question,
+            question: effectiveQuestion,
             resolved: false,
           },
         ]);
@@ -114,6 +126,7 @@ function ChatContent({ user }) {
     const msg = messages.find((m) => m.id === messageId);
     if (!msg) return;
 
+    setActiveIssue(null);
     setMessages((prev) =>
       prev.map((m) => (m.id === messageId ? { ...m, resolved: true } : m))
     );
@@ -125,6 +138,7 @@ function ChatContent({ user }) {
   }
 
   function handleDismissTicket(messageId) {
+    setActiveIssue(null);
     setMessages((prev) =>
       prev.map((m) => (m.id === messageId ? { ...m, resolved: true } : m))
     );
@@ -170,7 +184,7 @@ function ChatContent({ user }) {
 
 export default function ChatPage() {
   return (
-    <ProtectedRoute allowedRoles={["Employee", "HR", "IT"]}>
+    <ProtectedRoute allowedRoles={["Employee"]}>
       {(user) => <ChatContent user={user} />}
     </ProtectedRoute>
   );

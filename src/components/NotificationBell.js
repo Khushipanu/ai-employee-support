@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Bell, Megaphone, Briefcase } from "lucide-react";
 
-const TYPE_ICON = { announcement: Megaphone, application: Briefcase };
+const TYPE_ICON = { announcement: Megaphone, application: Briefcase, job: Briefcase };
 
 export default function NotificationBell({ email }) {
   const [notifications, setNotifications] = useState([]);
@@ -56,7 +56,9 @@ export default function NotificationBell({ email }) {
       >
         <Bell size={16} />
         {unreadCount > 0 && (
-          <span className="absolute right-1 top-1 flex h-2 w-2 rounded-full bg-rose-500" />
+          <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-semibold leading-none text-white">
+            {unreadCount > 9 ? "9+" : unreadCount}
+          </span>
         )}
       </button>
 

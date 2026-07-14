@@ -1,4 +1,5 @@
 import { getAllJobs, getOpenJobs, createJob, deleteJob } from "@/data/jobs";
+import { notifyAllEmployees } from "@/data/notifications";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -40,6 +41,13 @@ export async function POST(request) {
     description,
     createdByName,
     createdByEmail,
+  });
+
+  await notifyAllEmployees({
+    type: "job",
+    title: "New job posting",
+    message: `${job.title} — ${job.department}`,
+    link: "/jobs",
   });
 
   return Response.json({ job }, { status: 201 });

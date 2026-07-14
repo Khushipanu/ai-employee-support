@@ -18,8 +18,11 @@ import DashboardCard from "@/components/DashboardCard";
 import TicketCard from "@/components/TicketCard";
 import Sidebar from "@/components/Sidebar";
 import Loader from "@/components/Loader";
+import { DEPARTMENTS } from "@/lib/departments";
 
-const ROLES = ["Employee", "HR", "IT", "Admin"];
+// Admin accounts are managed outside this console — the Employees tab only
+// lists and creates Employee/HR/IT accounts.
+const ROLES = ["Employee", "HR", "IT"];
 
 const ROLE_ICON = { Employee: Briefcase, HR: UsersRound, IT: Wrench, Admin: Shield };
 const ROLE_STYLES = {
@@ -124,7 +127,7 @@ function TicketsTab({ user }) {
           ) : filtered.length === 0 ? (
             <p className="text-sm text-neutral-400">No tickets found.</p>
           ) : (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="max-w-2xl space-y-3">
               {filtered.map((t) => (
                 <TicketCard
                   key={t.id}
@@ -151,6 +154,7 @@ function EmployeesTab() {
     password: "",
     role: "Employee",
     department: "",
+    joiningDate: "",
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -185,7 +189,7 @@ function EmployeesTab() {
         return;
       }
       setSuccess(`${data.user.name} was added successfully.`);
-      setForm({ name: "", email: "", password: "", role: "Employee", department: "" });
+      setForm({ name: "", email: "", password: "", role: "Employee", department: "", joiningDate: "" });
       loadUsers();
     } catch {
       setError("Something went wrong. Please try again.");
@@ -194,8 +198,12 @@ function EmployeesTab() {
     }
   }
 
+  // Admin accounts aren't managed here, so they're excluded from the
+  // employee list and the stat counts below.
+  const employees = users.filter((u) => u.role !== "Admin");
+
   const counts = ROLES.reduce((acc, r) => {
-    acc[r] = users.filter((u) => u.role === r).length;
+    acc[r] = employees.filter((u) => u.role === r).length;
     return acc;
   }, {});
 
@@ -205,10 +213,10 @@ function EmployeesTab() {
   return (
     <div>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <DashboardCard title="Total" value={users.length} icon={Users} accent="indigo" />
+        <DashboardCard title="Total" value={employees.length} icon={Users} accent="indigo" />
+        <DashboardCard title="Employees" value={counts.Employee || 0} icon={Briefcase} accent="rose" />
         <DashboardCard title="HR" value={counts.HR || 0} icon={UsersRound} accent="amber" />
         <DashboardCard title="IT" value={counts.IT || 0} icon={Wrench} accent="emerald" />
-        <DashboardCard title="Admins" value={counts.Admin || 0} icon={Shield} accent="rose" />
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[320px_1fr]">
@@ -244,13 +252,21 @@ function EmployeesTab() {
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               className={inputClass}
             />
-            <input
+            <select
               required
-              placeholder="Department"
               value={form.department}
               onChange={(e) => setForm({ ...form, department: e.target.value })}
               className={inputClass}
-            />
+            >
+              <option value="" disabled>
+                Select department
+              </option>
+              {DEPARTMENTS.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
             <select
               value={form.role}
               onChange={(e) => setForm({ ...form, role: e.target.value })}
@@ -262,6 +278,17 @@ function EmployeesTab() {
                 </option>
               ))}
             </select>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-neutral-600 dark:text-neutral-400">
+                Joining date (optional)
+              </label>
+              <input
+                type="date"
+                value={form.joiningDate}
+                onChange={(e) => setForm({ ...form, joiningDate: e.target.value })}
+                className={inputClass}
+              />
+            </div>
 
             {error && (
               <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-600 dark:bg-rose-500/10 dark:text-rose-400">
@@ -292,7 +319,7 @@ function EmployeesTab() {
             <Loader label="Loading employees..." />
           ) : (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {users.map((u) => {
+              {employees.map((u) => {
                 const RoleIcon = ROLE_ICON[u.role] || Briefcase;
                 return (
                   <div
@@ -306,6 +333,10 @@ function EmployeesTab() {
                       <div>
                         <p className="text-sm font-medium text-neutral-800 dark:text-neutral-100">{u.name}</p>
                         <p className="text-xs text-neutral-400">{u.email}</p>
+                        <p className="mt-0.5 text-[11px] text-neutral-400">
+                          {u.department}
+                          {u.joiningDate && ` · Joined ${new Date(u.joiningDate).toLocaleDateString()}`}
+                        </p>
                       </div>
                     </div>
                     <span
