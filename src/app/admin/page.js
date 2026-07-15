@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardCard from "@/components/DashboardCard";
-import TicketCard from "@/components/TicketCard";
+import TicketColumns from "@/components/TicketColumns";
 import Sidebar from "@/components/Sidebar";
 import Loader from "@/components/Loader";
 import { DEPARTMENTS } from "@/lib/departments";
@@ -124,20 +124,14 @@ function TicketsTab({ user }) {
         <div className="flex-1">
           {loading ? (
             <Loader label="Loading tickets..." />
-          ) : filtered.length === 0 ? (
-            <p className="text-sm text-neutral-400">No tickets found.</p>
           ) : (
-            <div className="max-w-2xl space-y-3">
-              {filtered.map((t) => (
-                <TicketCard
-                  key={t.id}
-                  ticket={t}
-                  showEmployee
-                  onStatusChange={handleStatusChange}
-                  onReply={handleReply}
-                />
-              ))}
-            </div>
+            <TicketColumns
+              tickets={filtered}
+              filter={filter}
+              showEmployee
+              onStatusChange={handleStatusChange}
+              onReply={handleReply}
+            />
           )}
         </div>
       </div>

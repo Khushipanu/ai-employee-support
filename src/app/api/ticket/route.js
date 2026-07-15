@@ -5,6 +5,8 @@ import {
   createTicket,
   updateTicketStatus,
   addTicketReply,
+  deleteTicketForScope,
+  getTicketById,
 } from "@/data/tickets";
 import { classifyTicket } from "@/lib/ticketClassifier";
 
@@ -68,5 +70,31 @@ export async function PATCH(request) {
     return Response.json({ error: "Ticket not found" }, { status: 404 });
   }
 
+  return Response.json({ ticket });
+}
+
+// Deletion is per-viewer: `scope` identifies which side is deleting
+// (`employee:<email>` for the ticket's creator, `role:HR`/`role:IT` for the
+// team that received it). It only hides the ticket from that scope's own
+// dashboard — the other side keeps seeing it until they delete it too.
+export async function DELETE(request) {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get("id");
+  const scope = searchParams.get("scope");
+  if (!id || !scope) {
+    return Response.json({ error: "id and scope are required" }, { status: 400 });
+  }
+
+  const existing = await getTicketById(id);
+  if (!existing) {
+    return Response.json({ error: "Ticket not found" }, { status: 404 });
+  }
+
+  const allowedScopes = [`employee:${existing.employeeEmail}`, `role:${existing.category}`];
+  if (!allowedScopes.includes(scope)) {
+    return Response.json({ error: "Not allowed to delete this ticket" }, { status: 403 });
+  }
+
+  const ticket = await deleteTicketForScope(id, scope);
   return Response.json({ ticket });
 }

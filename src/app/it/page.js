@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Clock, AlertTriangle, CheckCircle2 } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardCard from "@/components/DashboardCard";
-import TicketCard from "@/components/TicketCard";
+import TicketColumns from "@/components/TicketColumns";
 import Sidebar from "@/components/Sidebar";
 import Loader from "@/components/Loader";
 
@@ -47,6 +47,16 @@ function ITContent({ user }) {
 
   function handleReply(id, text) {
     return patchTicket({ id, reply: { authorName: user.name, authorRole: user.role, text } });
+  }
+
+  // Deleting only removes the ticket from IT's own dashboard — the
+  // employee who raised it still sees it on their side until they delete it too.
+  async function handleDelete(id) {
+    const scope = "role:IT";
+    await fetch(`/api/ticket?id=${encodeURIComponent(id)}&scope=${encodeURIComponent(scope)}`, {
+      method: "DELETE",
+    });
+    setTickets((prev) => prev.filter((t) => t.id !== id));
   }
 
   const filtered =
@@ -106,20 +116,15 @@ function ITContent({ user }) {
         <div className="flex-1">
           {loading ? (
             <Loader label="Loading tickets..." />
-          ) : filtered.length === 0 ? (
-            <p className="text-sm text-neutral-400">No IT tickets found.</p>
           ) : (
-            <div className="max-w-2xl space-y-3">
-              {filtered.map((t) => (
-                <TicketCard
-                  key={t.id}
-                  ticket={t}
-                  showEmployee
-                  onStatusChange={handleStatusChange}
-                  onReply={handleReply}
-                />
-              ))}
-            </div>
+            <TicketColumns
+              tickets={filtered}
+              filter={filter}
+              showEmployee
+              onStatusChange={handleStatusChange}
+              onReply={handleReply}
+              onDelete={handleDelete}
+            />
           )}
         </div>
       </div>

@@ -66,7 +66,7 @@ export default function Navbar() {
               <Sparkles size={15} strokeWidth={2.5} />
             </span>
             <span className="text-sm font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
-              Zeera Support
+              ai-employee-support
             </span>
           </Link>
 

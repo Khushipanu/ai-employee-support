@@ -47,7 +47,7 @@ export default function LoginPage() {
             <Sparkles size={20} strokeWidth={2.25} />
           </span>
           <h1 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
-            Zeera Employee Support
+            ai-employee-support
           </h1>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Sign in to continue</p>
         </div>
@@ -66,7 +66,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full rounded-lg border border-neutral-200 bg-neutral-50/50 py-2.5 pl-9 pr-3 text-sm outline-none transition focus:border-indigo-400 focus:bg-white focus:ring-2 focus:ring-indigo-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:focus:border-indigo-500 dark:focus:bg-neutral-900 dark:focus:ring-indigo-500/20"
-                  placeholder="you@zeera.com"
+                  placeholder="you@company.com"
                 />
               </div>
             </div>

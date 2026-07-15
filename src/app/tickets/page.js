@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import TicketCard from "@/components/TicketCard";
+import TicketColumns from "@/components/TicketColumns";
 import Sidebar from "@/components/Sidebar";
 import Loader from "@/components/Loader";
 
@@ -28,6 +28,17 @@ function TicketsContent({ user }) {
     if (data.ticket) {
       setTickets((prev) => prev.map((t) => (t.id === id ? data.ticket : t)));
     }
+  }
+
+  // Employees may only delete tickets that are already resolved — open ones
+  // still need to be tracked/handled by HR or IT. Deleting only removes the
+  // ticket from this employee's own view; HR/IT still see it on their side.
+  async function handleDelete(id) {
+    const scope = `employee:${user.email}`;
+    await fetch(`/api/ticket?id=${encodeURIComponent(id)}&scope=${encodeURIComponent(scope)}`, {
+      method: "DELETE",
+    });
+    setTickets((prev) => prev.filter((t) => t.id !== id));
   }
 
   const filtered =
@@ -66,14 +77,14 @@ function TicketsContent({ user }) {
         <div className="flex-1">
           {loading ? (
             <Loader label="Loading tickets..." />
-          ) : filtered.length === 0 ? (
-            <p className="text-sm text-neutral-400">No tickets found.</p>
           ) : (
-            <div className="max-w-2xl space-y-3">
-              {filtered.map((t) => (
-                <TicketCard key={t.id} ticket={t} onReply={handleReply} />
-              ))}
-            </div>
+            <TicketColumns
+              tickets={filtered}
+              filter={filter}
+              onReply={handleReply}
+              onDelete={handleDelete}
+              deleteRestricted
+            />
           )}
         </div>
       </div>

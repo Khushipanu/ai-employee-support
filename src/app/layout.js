@@ -3,7 +3,7 @@ import Navbar from "@/components/Navbar";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 
 export const metadata = {
-  title: "Zeera Support",
+  title: "ai-employee-support",
   description: "AI-powered employee support: chat assistant, HR & IT tickets.",
 };
 

@@ -12,12 +12,13 @@ import {
 } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardCard from "@/components/DashboardCard";
-import TicketCard from "@/components/TicketCard";
+import TicketColumns from "@/components/TicketColumns";
 import AnnouncementCard from "@/components/AnnouncementCard";
 import JobCard from "@/components/JobCard";
 import ApplicationCard from "@/components/ApplicationCard";
 import Sidebar from "@/components/Sidebar";
 import Loader from "@/components/Loader";
+import Modal from "@/components/Modal";
 import { DEPARTMENTS } from "@/lib/departments";
 
 const TABS = [
@@ -70,6 +71,16 @@ function TicketsTab({ user }) {
     return patchTicket({ id, reply: { authorName: user.name, authorRole: user.role, text } });
   }
 
+  // Deleting only removes the ticket from HR's own dashboard — the
+  // employee who raised it still sees it on their side until they delete it too.
+  async function handleDelete(id) {
+    const scope = "role:HR";
+    await fetch(`/api/ticket?id=${encodeURIComponent(id)}&scope=${encodeURIComponent(scope)}`, {
+      method: "DELETE",
+    });
+    setTickets((prev) => prev.filter((t) => t.id !== id));
+  }
+
   const filtered = filter === "All" ? tickets : tickets.filter((t) => t.status === filter);
 
   const filters = [
@@ -116,20 +127,15 @@ function TicketsTab({ user }) {
         <div className="flex-1">
           {loading ? (
             <Loader label="Loading tickets..." />
-          ) : filtered.length === 0 ? (
-            <p className="text-sm text-neutral-400">No HR tickets found.</p>
           ) : (
-            <div className="max-w-2xl space-y-3">
-              {filtered.map((t) => (
-                <TicketCard
-                  key={t.id}
-                  ticket={t}
-                  showEmployee
-                  onStatusChange={handleStatusChange}
-                  onReply={handleReply}
-                />
-              ))}
-            </div>
+            <TicketColumns
+              tickets={filtered}
+              filter={filter}
+              showEmployee
+              onStatusChange={handleStatusChange}
+              onReply={handleReply}
+              onDelete={handleDelete}
+            />
           )}
         </div>
       </div>
@@ -140,6 +146,7 @@ function TicketsTab({ user }) {
 function AnnouncementsTab({ user }) {
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ title: "", description: "", priority: "Normal", expiryDate: "" });
   const [file, setFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -179,6 +186,7 @@ function AnnouncementsTab({ user }) {
       }
       setForm({ title: "", description: "", priority: "Normal", expiryDate: "" });
       setFile(null);
+      setShowModal(false);
       loadAnnouncements();
     } catch {
       setError("Something went wrong. Please try again.");
@@ -193,94 +201,96 @@ function AnnouncementsTab({ user }) {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[320px_1fr]">
-      <div className="h-fit rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
-        <div className="mb-4 flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
-            <Plus size={16} />
-          </span>
-          <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">New Announcement</h2>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <input
-            required
-            placeholder="Title"
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className={inputClass}
-          />
-          <textarea
-            required
-            rows={3}
-            placeholder="Description"
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className={`${inputClass} resize-none`}
-          />
-          <select
-            value={form.priority}
-            onChange={(e) => setForm({ ...form, priority: e.target.value })}
-            className={inputClass}
-          >
-            <option value="Normal">Normal</option>
-            <option value="Urgent">Urgent</option>
-          </select>
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-neutral-600 dark:text-neutral-400">
-              Expiry date (optional)
-            </label>
-            <input
-              type="date"
-              value={form.expiryDate}
-              onChange={(e) => setForm({ ...form, expiryDate: e.target.value })}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-neutral-600 dark:text-neutral-400">
-              Attachment — PDF (optional)
-            </label>
-            <input
-              type="file"
-              accept="application/pdf"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-              className="w-full text-xs text-neutral-500 file:mr-3 file:rounded-lg file:border-0 file:bg-neutral-100 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-neutral-600 dark:text-neutral-400 dark:file:bg-neutral-800 dark:file:text-neutral-300"
-            />
-          </div>
-
-          {error && (
-            <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-600 dark:bg-rose-500/10 dark:text-rose-400">
-              {error}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-neutral-800 disabled:opacity-60 dark:bg-indigo-600 dark:hover:bg-indigo-500"
-          >
-            {submitting ? "Posting..." : "Post to All Employees"}
-          </button>
-        </form>
-      </div>
-
-      <div>
-        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">
+    <div>
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-400">
           Posted Announcements
         </h2>
-        {loading ? (
-          <Loader label="Loading announcements..." />
-        ) : announcements.length === 0 ? (
-          <p className="text-sm text-neutral-400">No announcements posted yet.</p>
-        ) : (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {announcements.map((a) => (
-              <AnnouncementCard key={a.id} announcement={a} onDelete={handleDelete} />
-            ))}
-          </div>
-        )}
+        <button
+          onClick={() => setShowModal(true)}
+          className="flex items-center gap-1.5 rounded-lg bg-neutral-900 px-3.5 py-2 text-sm font-medium text-white transition hover:bg-neutral-800 dark:bg-indigo-600 dark:hover:bg-indigo-500"
+        >
+          <Plus size={15} /> New Announcement
+        </button>
       </div>
+
+      {loading ? (
+        <Loader label="Loading announcements..." />
+      ) : announcements.length === 0 ? (
+        <p className="text-sm text-neutral-400">No announcements posted yet.</p>
+      ) : (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {announcements.map((a) => (
+            <AnnouncementCard key={a.id} announcement={a} onDelete={handleDelete} />
+          ))}
+        </div>
+      )}
+
+      {showModal && (
+        <Modal title="New Announcement" onClose={() => setShowModal(false)}>
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <input
+              required
+              placeholder="Title"
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              className={inputClass}
+            />
+            <textarea
+              required
+              rows={3}
+              placeholder="Description"
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              className={`${inputClass} resize-none`}
+            />
+            <select
+              value={form.priority}
+              onChange={(e) => setForm({ ...form, priority: e.target.value })}
+              className={inputClass}
+            >
+              <option value="Normal">Normal</option>
+              <option value="Urgent">Urgent</option>
+            </select>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-neutral-600 dark:text-neutral-400">
+                Expiry date (optional)
+              </label>
+              <input
+                type="date"
+                value={form.expiryDate}
+                onChange={(e) => setForm({ ...form, expiryDate: e.target.value })}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-neutral-600 dark:text-neutral-400">
+                Attachment — PDF (optional)
+              </label>
+              <input
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                className="w-full text-xs text-neutral-500 file:mr-3 file:rounded-lg file:border-0 file:bg-neutral-100 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-neutral-600 dark:text-neutral-400 dark:file:bg-neutral-800 dark:file:text-neutral-300"
+              />
+            </div>
+
+            {error && (
+              <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-600 dark:bg-rose-500/10 dark:text-rose-400">
+                {error}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-neutral-800 disabled:opacity-60 dark:bg-indigo-600 dark:hover:bg-indigo-500"
+            >
+              {submitting ? "Posting..." : "Post to All Employees"}
+            </button>
+          </form>
+        </Modal>
+      )}
     </div>
   );
 }

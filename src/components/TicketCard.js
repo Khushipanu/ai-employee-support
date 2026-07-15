@@ -1,26 +1,43 @@
 "use client";
 
 import { useState } from "react";
-import { Users, Wrench, Send } from "lucide-react";
+import { Users, Wrench, Send, Trash2 } from "lucide-react";
 
-const STATUS_STYLES = {
-  Open: "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400",
-  "In Progress": "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400",
-  Resolved: "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400",
+const STATUS_DOT = {
+  Open: "bg-amber-500",
+  "In Progress": "bg-blue-500",
+  Resolved: "bg-emerald-500",
 };
 
-const PRIORITY_STYLES = {
-  High: "bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400",
-  Medium: "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400",
-  Low: "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300",
+const PRIORITY_BORDER = {
+  High: "border-l-rose-400 dark:border-l-rose-500/70",
+  Medium: "border-l-amber-300 dark:border-l-amber-500/50",
+  Low: "border-l-neutral-200 dark:border-l-neutral-700",
+};
+
+const PRIORITY_TEXT = {
+  High: "text-rose-600 dark:text-rose-400",
+  Medium: "text-amber-600 dark:text-amber-400",
+  Low: "text-neutral-500 dark:text-neutral-400",
 };
 
 const CATEGORY_ICON = { HR: Users, IT: Wrench };
 
-export default function TicketCard({ ticket, onStatusChange, onReply, showEmployee = false }) {
+export default function TicketCard({
+  ticket,
+  onStatusChange,
+  onReply,
+  onDelete,
+  deleteRestricted = false,
+  showEmployee = false,
+}) {
   const CategoryIcon = CATEGORY_ICON[ticket.category] || Wrench;
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
+
+  // HR/IT/Admin can delete any ticket; the employee view passes
+  // deleteRestricted so they can only clear out ones already resolved.
+  const canDelete = Boolean(onDelete) && (!deleteRestricted || ticket.status === "Resolved");
 
   // Legacy tickets stored a single `resolution` string before the reply
   // thread existed — fold it in as the first message so old data still shows.
@@ -61,7 +78,11 @@ export default function TicketCard({ ticket, onStatusChange, onReply, showEmploy
   const canCompose = Boolean(onReply || onStatusChange);
 
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-4 transition hover:border-neutral-300 hover:shadow-sm dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-700 dark:hover:shadow-none">
+    <div
+      className={`rounded-xl border border-l-4 border-neutral-200 bg-white p-4 transition hover:border-neutral-300 hover:shadow-sm dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-700 dark:hover:shadow-none ${
+        PRIORITY_BORDER[ticket.priority] || PRIORITY_BORDER.Low
+      }`}
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-2.5">
           <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
@@ -77,30 +98,32 @@ export default function TicketCard({ ticket, onStatusChange, onReply, showEmploy
             )}
           </div>
         </div>
-        <span
-          className={`shrink-0 rounded-full px-2 py-1 text-[11px] font-medium ${
-            PRIORITY_STYLES[ticket.priority] || PRIORITY_STYLES.Low
-          }`}
-        >
-          {ticket.priority}
-        </span>
+        <div className="flex shrink-0 items-center gap-1">
+          <span className="text-[11px] text-neutral-400">
+            {new Date(ticket.createdAt).toLocaleDateString()}
+          </span>
+          {canDelete && (
+            <button
+              onClick={() => onDelete(ticket.id)}
+              title="Delete ticket"
+              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10 dark:hover:text-rose-400"
+            >
+              <Trash2 size={13} />
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="mt-3 flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          <span className="rounded-full bg-neutral-100 px-2 py-1 text-[11px] font-medium text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
-            {ticket.category}
-          </span>
-          <span
-            className={`rounded-full px-2 py-1 text-[11px] font-medium ${
-              STATUS_STYLES[ticket.status] || STATUS_STYLES.Open
-            }`}
-          >
-            {ticket.status}
-          </span>
-        </div>
-        <span className="text-[11px] text-neutral-400">
-          {new Date(ticket.createdAt).toLocaleDateString()}
+      <div className="mt-2.5 flex items-center gap-2 text-xs">
+        <span className="flex items-center gap-1.5 font-medium text-neutral-600 dark:text-neutral-300">
+          <span className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[ticket.status] || STATUS_DOT.Open}`} />
+          {ticket.status}
+        </span>
+        <span className="text-neutral-300 dark:text-neutral-700">·</span>
+        <span className="text-neutral-400">{ticket.category}</span>
+        <span className="text-neutral-300 dark:text-neutral-700">·</span>
+        <span className={`font-medium ${PRIORITY_TEXT[ticket.priority] || PRIORITY_TEXT.Low}`}>
+          {ticket.priority} priority
         </span>
       </div>
 
