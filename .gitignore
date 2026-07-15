@@ -40,6 +40,9 @@ yarn-error.log*
 /public/uploads/**
 !/public/uploads/.gitkeep
 
+# real demo account credentials — see scripts/seed-data.example.mjs
+/scripts/seed-data.local.mjs
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
