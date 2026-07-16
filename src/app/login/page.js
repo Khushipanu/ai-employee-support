@@ -6,12 +6,25 @@ import { Mail, Lock, Sparkles, ArrowRight } from "lucide-react";
 import { setSession } from "@/lib/session";
 import { homeForRole } from "@/lib/roles";
 
+const DEMO_ACCOUNTS = [
+  { role: "Admin", email: "khushi@company.com", password: "password123" },
+  { role: "HR", email: "hr@company.com", password: "password123" },
+  { role: "IT", email: "it@company.com", password: "password123" },
+  { role: "Employee", email: "employee@company.com", password: "123" },
+];
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  function fillDemo(account) {
+    setEmail(account.email);
+    setPassword(account.password);
+    setError("");
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -102,6 +115,25 @@ export default function LoginPage() {
               )}
             </button>
           </form>
+        </div>
+
+        <div className="mt-4 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm shadow-neutral-200/50 dark:border-neutral-800 dark:bg-neutral-900 dark:shadow-none">
+          <p className="mb-2.5 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+            Demo accounts — click a role to autofill
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            {DEMO_ACCOUNTS.map((account) => (
+              <button
+                key={account.role}
+                type="button"
+                onClick={() => fillDemo(account)}
+                className="rounded-lg border border-neutral-200 px-3 py-2 text-left text-xs transition hover:border-indigo-300 hover:bg-indigo-50 dark:border-neutral-700 dark:hover:border-indigo-500/50 dark:hover:bg-indigo-500/10"
+              >
+                <span className="block font-medium text-neutral-800 dark:text-neutral-200">{account.role}</span>
+                <span className="block text-neutral-400 dark:text-neutral-500">{account.email}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>

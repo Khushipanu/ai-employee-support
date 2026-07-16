@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# AI Employee Support
 
-## Getting Started
+An internal employee support portal for a company — employees can chat with an AI assistant for HR/IT policy questions, raise support tickets, view announcements and tasks, and apply to internal job postings. HR, IT, and Admin each get a dedicated console to manage their side of things.
 
-First, run the development server:
+## Features
+
+- **AI policy assistant** — employees ask HR/IT questions in a chat UI; answers are grounded strictly in the company's policy documents (`src/lib/policies.js`) via the Groq API (Llama 3.3), with a keyword-matching fallback if no API key is configured.
+- **Auto-escalation to tickets** — when the assistant can't answer a question from policy content, it's classified (HR/IT + priority) and routed into the ticket queue instead of being silently dropped.
+- **Ticket management** — a Kanban-style ticket board for HR/IT staff to triage and resolve employee-raised issues.
+- **Role-based dashboards** — Admin, HR, and IT each have their own management console (user management, announcements, job postings/applications); Employees get a personal dashboard with tasks, announcements, and the AI chat.
+- **Job postings & applications** — HR can post openings; employees can view and apply (with resume upload).
+- **Announcements & notifications** — company-wide announcements (with optional PDF attachments) and a notification bell.
+- **Task tracking** — a "today's tasks" view per employee.
+
+## Tech stack
+
+- [Next.js](https://nextjs.org) (App Router) + React
+- MongoDB Atlas for data storage
+- [Groq](https://groq.com) (Llama 3.3 70B) for the AI assistant, with a local keyword-based fallback
+- Tailwind CSS
+- [lucide-react](https://lucide.dev) for icons
+
+## Getting started
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Configure environment variables
+
+Create a `.env.local` file in the project root:
+
+```bash
+MONGODB_URI=your-mongodb-atlas-connection-string
+MONGODB_DB=ai_employee_support
+GROQ_API_KEY=your-groq-api-key   # optional — falls back to keyword matching if omitted
+GROQ_MODEL=llama-3.3-70b-versatile
+```
+
+### 3. Seed demo accounts (optional)
+
+```bash
+cp scripts/seed-data.example.mjs scripts/seed-data.local.mjs
+# edit scripts/seed-data.local.mjs with real demo users
+npm run seed
+```
+
+### 4. Run the dev server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit [http://localhost:3001](http://localhost:3001).
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Demo accounts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The login page has a "Demo accounts" panel that autofills credentials for each role — no signup flow, since this simulates pre-provisioned company accounts:
 
-## Learn More
+| Role     | Email                  |
+|----------|------------------------|
+| Admin    | khushi@company.com     |
+| HR       | hr@company.com         |
+| IT       | it@company.com         |
+| Employee | employee@company.com   |
 
-To learn more about Next.js, take a look at the following resources:
+## Project structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+  app/            Routes (login, dashboard, hr, it, admin, chat, tickets, jobs, profile) + API routes
+  components/     Shared UI components
+  data/           MongoDB-backed data access functions
+  lib/            AI assistant, ticket classifier, policies, roles, session, uploads
+scripts/
+  seed.mjs        Seeds demo accounts into MongoDB
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Known limitations
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- PDF uploads (resumes, announcement attachments) are saved to local disk (`public/uploads/`). This works for local development but **will not persist on serverless hosts like Vercel** — the filesystem there is ephemeral. Swap in an object storage service (e.g. S3, Vercel Blob) before relying on uploads in production.
