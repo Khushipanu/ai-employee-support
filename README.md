@@ -6,7 +6,7 @@ An internal employee support portal for a company — employees can chat with an
 
 - **AI policy assistant** — employees ask HR/IT questions in a chat UI; answers are grounded strictly in the company's policy documents (`src/lib/policies.js`) via the Groq API (Llama 3.3), with a keyword-matching fallback if no API key is configured.
 - **Auto-escalation to tickets** — when the assistant can't answer a question from policy content, it's classified (HR/IT + priority) and routed into the ticket queue instead of being silently dropped.
-- **Ticket management** — a Kanban-style ticket board for HR/IT staff to triage and resolve employee-raised issues.
+- **Ticket management** — a ticket board for HR/IT staff to resolve employee-raised issues.
 - **Role-based dashboards** — Admin, HR, and IT each have their own management console (user management, announcements, job postings/applications); Employees get a personal dashboard with tasks, announcements, and the AI chat.
 - **Job postings & applications** — HR can post openings; employees can view and apply (with resume upload).
 - **Announcements & notifications** — company-wide announcements (with optional PDF attachments) and a notification bell.
